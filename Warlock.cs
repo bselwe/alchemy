@@ -11,7 +11,7 @@ namespace Alchemy
         public Warlock(Factory[] factories)
         {
             this.factories = factories;
-            this.random = new Random();
+            this.random = new Random(Guid.NewGuid().GetHashCode());
         }
 
         public void Run() 
@@ -23,7 +23,7 @@ namespace Alchemy
 
                 factory.SemCurses.Wait();
                 factory.Curses++;
-                Print(factory.Resource, $"{factory.Curses} curses");
+                // Print(factory.Resource, $"{factory.Curses} curses");
 
                 if (factory.Curses == 1)
                 {

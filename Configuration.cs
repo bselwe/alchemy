@@ -4,7 +4,7 @@ namespace Alchemy
     {
         public readonly static int NumberOfFactories = 3;
 
-        public readonly static int WarlockMinSleepTimeMs = 2000;
+        public readonly static int WarlockMinSleepTimeMs = 4000;
         public readonly static int WarlockMaxSleepTimeMs = 7001;
 
         public readonly static int SorcererMinSleepTimeMs = 3000;

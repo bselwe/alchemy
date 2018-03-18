@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/alchemy.csproj"
+                "${workspaceFolder}/Alchemy.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

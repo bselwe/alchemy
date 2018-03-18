@@ -14,7 +14,7 @@ namespace Alchemy
 
         public Store()
         {
-            InitializeResources();
+            Initialize();
         }
 
         public void Run()
@@ -28,11 +28,6 @@ namespace Alchemy
             }
         }
 
-        public void WaitForCapacity(Resource resource)
-        {
-            SemCapacity[resource].Wait();    
-        }
-
         public int AddResource(Resource resource)
         {
             SemResources.Wait();
@@ -42,7 +37,12 @@ namespace Alchemy
             return resources;
         }
 
-        private void InitializeResources()
+        public void WaitForCapacity(Resource resource)
+        {
+            SemCapacity[resource].Wait();
+        }
+
+        private void Initialize()
         {
             Resources = new Dictionary<Resource, int>();
             SemCapacity = new Dictionary<Resource, SemaphoreSlim>();
@@ -64,11 +64,7 @@ namespace Alchemy
 
     public interface IStore
     {
-        Dictionary<Resource, int> Resources { get; }
-        Dictionary<Resource, SemaphoreSlim> SemCapacity { get; }
-        SemaphoreSlim SemResources { get; }
-        SemaphoreSlim SemNewResources { get; }
-
         int AddResource(Resource resource);
+        void WaitForCapacity(Resource resource);
     }
 }

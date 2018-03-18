@@ -11,7 +11,7 @@ namespace Alchemy
         public Sorcerer(Factory[] factories)
         {
             this.factories = factories;
-            this.random = new Random();
+            this.random = new Random(Guid.NewGuid().GetHashCode());
         }
 
         public void Run()
@@ -26,7 +26,7 @@ namespace Alchemy
                 if (factory.Curses > 0)
                 {
                     factory.Curses--;
-                    Print(factory.Resource, $"{factory.Curses} curses");
+                    // Print(factory.Resource, $"{factory.Curses} curses");
                     
                     if (factory.Curses == 0)
                     {

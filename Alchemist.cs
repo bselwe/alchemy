@@ -4,21 +4,25 @@ namespace Alchemy
 {
     public class Alchemist
     {
+        private readonly IAlchemistsQueue queue;
+
         public AlchemistType Type { get; private set; }
 
         private List<Resource> neededResources;
         public IReadOnlyList<Resource> NeededResources => neededResources;
 
-        public Alchemist(AlchemistType type)
+        public Alchemist(AlchemistType type, IAlchemistsQueue queue)
         {
             Type = type;
+            this.queue = queue;
 
             InitializeNeededResources();
         }
 
         public void Run()
         {
-
+            queue.AddAlchemistToQueue(Type);
+            queue.WaitForResources(Type);
         }
 
         private void InitializeNeededResources()

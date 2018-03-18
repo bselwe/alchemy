@@ -13,6 +13,7 @@ namespace Alchemy
             HandleArguments(args);
 
             var store = InitializeStore();
+            var queue = InitializeAlchemistsQueue();
             var factories = InitializeFactories(store);
             InitializeWarlocks(factories);
             InitializeSorcerers(factories);
@@ -36,6 +37,13 @@ namespace Alchemy
             var store = new Store();
             new Thread(() => store.Run()).Start();
             return store;
+        }
+
+        private static AlchemistsQueue InitializeAlchemistsQueue()
+        {
+            var queue = new AlchemistsQueue();
+            new Thread(() => queue.Run()).Start();
+            return queue;
         }
 
         private static Factory[] InitializeFactories(IStore store)

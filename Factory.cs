@@ -23,7 +23,7 @@ namespace Alchemy
             SemClean = new SemaphoreSlim(1, 1);
 
             this.store = store;
-            this.random = new Random();
+            this.random = new Random(Guid.NewGuid().GetHashCode());
         }
 
         public void Run()
@@ -31,7 +31,7 @@ namespace Alchemy
             while (true)
             {
                 Print("waiting");
-                store.SemCapacity[Resource].Wait();
+                store.WaitForCapacity(Resource);
                 SemClean.Wait();
 
                 int resources = store.AddResource(Resource);
