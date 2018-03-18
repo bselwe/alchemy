@@ -18,24 +18,25 @@ namespace Alchemy
         {
             while (true)
             {
-                var index = random.Next(0, 3);
-                var factory = factories[index];
-
-                factory.SemCurses.Wait();
-                
-                if (factory.Curses > 0)
+                for (int i = 0; i < Configuration.NumberOfFactories; i++)
                 {
-                    factory.Curses--;
-                    // Print(factory.Resource, $"{factory.Curses} CURSES");
+                    var factory = factories[i];
+                    factory.SemCurses.Wait();
                     
-                    if (factory.Curses == 0)
+                    if (factory.Curses > 0)
                     {
-                        factory.SemClean.Release();
-                        Print(factory.Resource, "CLEAN");
+                        factory.Curses--;
+                        // Print(factory.Resource, $"{factory.Curses} CURSES");
+                        
+                        if (factory.Curses == 0)
+                        {
+                            factory.SemClean.Release();
+                            Print(factory.Resource, "CLEAN");
+                        }
                     }
-                }
 
-                factory.SemCurses.Release();
+                    factory.SemCurses.Release();
+                }
 
                 var timeToSleep = random.Next(Configuration.SorcererMinSleepTimeMs, Configuration.SorcererMaxSleepTimeMs);
                 Thread.Sleep(timeToSleep);
