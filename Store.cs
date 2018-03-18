@@ -7,13 +7,18 @@ namespace Alchemy
 {
     public class Store : IStore
     {
-        public Dictionary<Resource, int> Resources { get; private set; }
-        public Dictionary<Resource, SemaphoreSlim> SemCapacity { get; private set; } // Current capacity of factories
-        public SemaphoreSlim SemResources { get; private set; } // Blocking access to resources
-        public SemaphoreSlim SemNewResources { get; private set; } // Used to inform about a new product
+        private readonly IDispatcher dispatcher;
+        
+        private Dictionary<Resource, SemaphoreSlim> semCapacity; // Current capacity of factories
+        private SemaphoreSlim semNewResources; // Used to inform about a new product
 
-        public Store()
+        public Dictionary<Resource, int> Resources { get; private set; }
+        public SemaphoreSlim SemResources { get; private set; } // Blocking access to resources
+
+        public Store(IDispatcher dispatcher)
         {
+            this.dispatcher = dispatcher;
+
             Initialize();
         }
 
@@ -21,10 +26,12 @@ namespace Alchemy
         {
             while (true)
             {
-                SemNewResources.Wait();
+                semNewResources.Wait();
                 
                 Print("NEW RESOURCE!");
                 Print($"{Resource.Lead}: {Resources[Resource.Lead]}, {Resource.Sulfur}: {Resources[Resource.Sulfur]}, {Resource.Mercury}: {Resources[Resource.Mercury]}");
+
+                dispatcher.DispatchDistribution();
             }
         }
 
@@ -33,26 +40,26 @@ namespace Alchemy
             SemResources.Wait();
             int resources = ++Resources[resource];
             SemResources.Release();
-            SemNewResources.Release();
+            semNewResources.Release();
             return resources;
         }
 
         public void WaitForCapacity(Resource resource)
         {
-            SemCapacity[resource].Wait();
+            semCapacity[resource].Wait();
         }
 
         private void Initialize()
         {
             Resources = new Dictionary<Resource, int>();
-            SemCapacity = new Dictionary<Resource, SemaphoreSlim>();
+            semCapacity = new Dictionary<Resource, SemaphoreSlim>();
             SemResources = new SemaphoreSlim(1, 1);
-            SemNewResources = new SemaphoreSlim(0);
+            semNewResources = new SemaphoreSlim(0);
             
             foreach (Resource resource in Enum.GetValues(typeof(Resource)))
             {
                 Resources[resource] = 0;
-                SemCapacity[resource] = new SemaphoreSlim(2, 2);
+                semCapacity[resource] = new SemaphoreSlim(2, 2);
             }
         }
 

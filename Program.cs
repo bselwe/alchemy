@@ -12,8 +12,7 @@ namespace Alchemy
         {
             HandleArguments(args);
 
-            var store = InitializeStore();
-            var queue = InitializeAlchemistsQueue();
+            var store = InitializeDistribution();
             var factories = InitializeFactories(store);
             InitializeWarlocks(factories);
             InitializeSorcerers(factories);
@@ -32,18 +31,18 @@ namespace Alchemy
             }
         }
 
-        private static Store InitializeStore()
+        private static Store InitializeDistribution()
         {
-            var store = new Store();
-            new Thread(() => store.Run()).Start();
-            return store;
-        }
+            var dispatcher = new Dispatcher();
+            var store = new Store(dispatcher);
+            var queue = new AlchemistsQueue(dispatcher);
+            var distributor = new Distributor(dispatcher, store, queue);
 
-        private static AlchemistsQueue InitializeAlchemistsQueue()
-        {
-            var queue = new AlchemistsQueue();
+            new Thread(() => store.Run()).Start();
             new Thread(() => queue.Run()).Start();
-            return queue;
+            new Thread(() => distributor.Run()).Start();
+
+            return store;
         }
 
         private static Factory[] InitializeFactories(IStore store)

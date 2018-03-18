@@ -7,13 +7,17 @@ namespace Alchemy
 {
     public class AlchemistsQueue : IAlchemistsQueue
     {
-        public Dictionary<AlchemistType, int> Alchemists { get; private set; }
-        public Dictionary<AlchemistType, SemaphoreSlim> SemAlchemistsQueue { get; private set; }
-        public SemaphoreSlim SemAlchemists { get; private set; } // Blocking access to alchemists
-        public SemaphoreSlim SemNewAlchemist { get; private set; } // Used to inform about a new alchemist
+        private readonly IDispatcher dispatcher;
+        private SemaphoreSlim semNewAlchemist; // Used to inform about a new alchemist
 
-        public AlchemistsQueue()
+        public Dictionary<AlchemistType, SemaphoreSlim> SemAlchemistsQueue { get; private set; } // Used to block alchemists
+        public Dictionary<AlchemistType, int> Alchemists { get; private set; }
+        public SemaphoreSlim SemAlchemists { get; private set; } // Blocking access to alchemists
+
+        public AlchemistsQueue(IDispatcher dispatcher)
         {
+            this.dispatcher = dispatcher;
+
             Initialize();
         }
 
@@ -21,9 +25,11 @@ namespace Alchemy
         {
             while (true)
             {
-                SemNewAlchemist.Wait();
+                semNewAlchemist.Wait();
 
                 Print("NEW ALCHEMIST!");
+
+                dispatcher.DispatchDistribution();
             }
         }
 
@@ -32,8 +38,8 @@ namespace Alchemy
             SemAlchemists.Wait();
             Alchemists[alchemist]++;
             if (Alchemists[alchemist]++ == 0)
-                SemNewAlchemist.Release();
-            SemNewAlchemist.Release();
+                semNewAlchemist.Release();
+            semNewAlchemist.Release();
         }
 
         public void WaitForResources(AlchemistType alchemist)
@@ -46,7 +52,7 @@ namespace Alchemy
             Alchemists = new Dictionary<AlchemistType, int>();
             SemAlchemistsQueue = new Dictionary<AlchemistType, SemaphoreSlim>();
             SemAlchemists = new SemaphoreSlim(1, 1);
-            SemNewAlchemist = new SemaphoreSlim(0);
+            semNewAlchemist = new SemaphoreSlim(0);
 
             foreach (AlchemistType alchemist in Enum.GetValues(typeof(AlchemistType)))
             {
