@@ -6,8 +6,10 @@ namespace Alchemy
 {
     public class Factory
     {
+        private readonly IStore store;
+        private Random random;
+
         public Resource Resource { get; private set; }
-        public IStore Store { get; private set; }
         public int Curses { get; set; }
         
         public SemaphoreSlim SemCurses { get; private set; } // Blocking access to curses
@@ -16,26 +18,24 @@ namespace Alchemy
         public Factory(Resource resource, IStore store)
         {
             Resource = resource;
-            Store = store;
-            SemClean = new SemaphoreSlim(1, 1);
+            Curses = 0;
             SemCurses = new SemaphoreSlim(1, 1);
+            SemClean = new SemaphoreSlim(1, 1);
+
+            this.store = store;
+            this.random = new Random();
         }
 
         public void Run()
         {
-            var random = new Random();
-
             while (true)
             {
                 Print("waiting");
-                Store.SemCapacity[Resource].Wait();
+                store.SemCapacity[Resource].Wait();
                 SemClean.Wait();
 
-                Store.SemResources.Wait();
-                Print($"producing ({Store.Resources[Resource] + 1})");
-                Store.Resources[Resource]++;
-                Store.SemResources.Release();
-                Store.SemNewResources.Release();
+                int resources = store.AddResource(Resource);
+                Print($"produced ({resources})");
                 
                 SemClean.Release();
 

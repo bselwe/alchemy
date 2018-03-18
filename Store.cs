@@ -22,9 +22,24 @@ namespace Alchemy
             while (true)
             {
                 SemNewResources.Wait();
-                Console.WriteLine("   [STORE] NEW RESOURCE!");
-                Console.WriteLine($"   [STORE] {Resource.Lead}: {Resources[Resource.Lead]}, {Resource.Sulfur}: {Resources[Resource.Sulfur]}, {Resource.Mercury}: {Resources[Resource.Mercury]}");
+                
+                Print("NEW RESOURCE!");
+                Print($"{Resource.Lead}: {Resources[Resource.Lead]}, {Resource.Sulfur}: {Resources[Resource.Sulfur]}, {Resource.Mercury}: {Resources[Resource.Mercury]}");
             }
+        }
+
+        public void WaitForCapacity(Resource resource)
+        {
+            SemCapacity[resource].Wait();    
+        }
+
+        public int AddResource(Resource resource)
+        {
+            SemResources.Wait();
+            int resources = ++Resources[resource];
+            SemResources.Release();
+            SemNewResources.Release();
+            return resources;
         }
 
         private void InitializeResources()
@@ -40,13 +55,20 @@ namespace Alchemy
                 SemCapacity[resource] = new SemaphoreSlim(2, 2);
             }
         }
+
+        private void Print(string message)
+        {
+            Console.WriteLine($"   [STORE] {message}");
+        }
     }
 
     public interface IStore
     {
         Dictionary<Resource, int> Resources { get; }
-        Dictionary<Resource, SemaphoreSlim> SemCapacity { get; } // Current capacity of factories
-        SemaphoreSlim SemResources { get; } // Blocking access to resources
-        SemaphoreSlim SemNewResources { get; } // Used to inform about a new product
+        Dictionary<Resource, SemaphoreSlim> SemCapacity { get; }
+        SemaphoreSlim SemResources { get; }
+        SemaphoreSlim SemNewResources { get; }
+
+        int AddResource(Resource resource);
     }
 }

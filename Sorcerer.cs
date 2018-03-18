@@ -6,16 +6,16 @@ namespace Alchemy
     public class Sorcerer
     {
         private Factory[] factories;
+        private Random random;
 
         public Sorcerer(Factory[] factories)
         {
             this.factories = factories;
+            this.random = new Random();
         }
 
         public void Run()
         {
-            var random = new Random();
-
             while (true)
             {
                 var index = random.Next(0, 3);
