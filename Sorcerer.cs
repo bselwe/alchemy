@@ -26,7 +26,7 @@ namespace Alchemy
                 if (factory.Curses > 0)
                 {
                     factory.Curses--;
-                    // Print(factory.Resource, $"{factory.Curses} curses");
+                    // Print(factory.Resource, $"{factory.Curses} CURSES");
                     
                     if (factory.Curses == 0)
                     {
@@ -44,7 +44,7 @@ namespace Alchemy
 
         private void Print(Resource resource, string message)
         {
-            Console.WriteLine($"[SORCERER] {resource} factory: {message}");
+            Console.WriteLine($"{"[SORCERER]", Configuration.EntityNameLength} {resource} factory: {message}");
         }
     }
 }

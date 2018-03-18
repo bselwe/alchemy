@@ -9,9 +9,9 @@ namespace Alchemy
     {
         private readonly IDispatcher dispatcher;
         
-        private Dictionary<Resource, SemaphoreSlim> semCapacity; // Current capacity of factories
         private SemaphoreSlim semNewResources; // Used to inform about a new product
 
+        public Dictionary<Resource, SemaphoreSlim> SemCapacity { get; private set; } // Current capacity of factories
         public Dictionary<Resource, int> Resources { get; private set; }
         public SemaphoreSlim SemResources { get; private set; } // Blocking access to resources
 
@@ -28,7 +28,7 @@ namespace Alchemy
             {
                 semNewResources.Wait();
                 
-                Print("NEW RESOURCE!");
+                Print("NEW RESOURCE");
                 Print($"{Resource.Lead}: {Resources[Resource.Lead]}, {Resource.Sulfur}: {Resources[Resource.Sulfur]}, {Resource.Mercury}: {Resources[Resource.Mercury]}");
 
                 dispatcher.DispatchDistribution();
@@ -46,26 +46,26 @@ namespace Alchemy
 
         public void WaitForCapacity(Resource resource)
         {
-            semCapacity[resource].Wait();
+            SemCapacity[resource].Wait();
         }
 
         private void Initialize()
         {
             Resources = new Dictionary<Resource, int>();
-            semCapacity = new Dictionary<Resource, SemaphoreSlim>();
+            SemCapacity = new Dictionary<Resource, SemaphoreSlim>();
             SemResources = new SemaphoreSlim(1, 1);
             semNewResources = new SemaphoreSlim(0);
             
             foreach (Resource resource in Enum.GetValues(typeof(Resource)))
             {
                 Resources[resource] = 0;
-                semCapacity[resource] = new SemaphoreSlim(2, 2);
+                SemCapacity[resource] = new SemaphoreSlim(2, 2);
             }
         }
 
         private void Print(string message)
         {
-            Console.WriteLine($"   [STORE] {message}");
+            Console.WriteLine($"{"[STORE]", Configuration.EntityNameLength} {message}");
         }
     }
 

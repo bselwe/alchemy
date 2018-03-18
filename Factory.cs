@@ -30,12 +30,12 @@ namespace Alchemy
         {
             while (true)
             {
-                Print("waiting");
+                Print("WAITING");
                 store.WaitForCapacity(Resource);
                 SemClean.Wait();
 
                 int resources = store.AddResource(Resource);
-                Print($"produced ({resources})");
+                Print($"PRODUCED ({resources})");
                 
                 SemClean.Release();
 
@@ -46,7 +46,7 @@ namespace Alchemy
 
         private void Print(string message)
         {
-            Console.WriteLine($" [FACTORY] {Resource} factory: {message}");
+            Console.WriteLine($"{"[FACTORY]", Configuration.EntityNameLength} {Resource} factory: {message}");
         }
     }
 

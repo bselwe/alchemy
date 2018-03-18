@@ -23,7 +23,7 @@ namespace Alchemy
 
                 factory.SemCurses.Wait();
                 factory.Curses++;
-                // Print(factory.Resource, $"{factory.Curses} curses");
+                // Print(factory.Resource, $"{factory.Curses} CURSES");
 
                 if (factory.Curses == 1)
                 {
@@ -40,7 +40,7 @@ namespace Alchemy
 
         private void Print(Resource resource, string message)
         {
-            Console.WriteLine($" [WARLOCK] {resource} factory: {message}");
+            Console.WriteLine($"{"[WARLOCK]", Configuration.EntityNameLength} {resource} factory: {message}");
         }
     }
 }

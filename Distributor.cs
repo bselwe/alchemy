@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using static Alchemy.Alchemist;
 
 namespace Alchemy
 {
@@ -26,7 +28,52 @@ namespace Alchemy
 
         public void DistributeResources()
         {
-            Console.WriteLine("!!! DISTRIBUTE RESOURCES !!!");
+            queue.SemAlchemists.Wait();
+            store.SemResources.Wait();
+
+            Print("TRYING TO DISTRIBUTE RESOURCES");
+
+            TrySatisfyAlchemists(AlchemistType.D);
+            TrySatisfyAlchemists(AlchemistType.A);
+            TrySatisfyAlchemists(AlchemistType.B);
+            TrySatisfyAlchemists(AlchemistType.C);
+
+            store.SemResources.Release();
+            queue.SemAlchemists.Release();
+        }
+
+        private void TrySatisfyAlchemists(AlchemistType alchemist)
+        {
+            while (queue.Alchemists[alchemist] > 0)
+            {
+                if (CanSatisfyAlchemist(alchemist))
+                    SatisfyAlchemist(alchemist);
+                else
+                    break;
+            }
+        }
+
+        private void SatisfyAlchemist(AlchemistType alchemist)
+        {
+            foreach (var resource in Alchemist.NeededResources[alchemist])
+            {
+                store.Resources[resource]--;
+                store.SemCapacity[resource].Release();
+            }
+
+            queue.SemAlchemistsQueue[alchemist].Release();
+            queue.Alchemists[alchemist]--;
+        }
+
+        private bool CanSatisfyAlchemist(AlchemistType alchemist)
+        {
+            var neededResources = Alchemist.NeededResources[alchemist];
+            return neededResources.All(resource => store.Resources[resource] > 0);
+        }
+
+        private void Print(string message)
+        {
+            Console.WriteLine($"{"[DISTRIBUTOR]", Configuration.EntityNameLength} {message}");
         }
     }
 }

@@ -1,16 +1,19 @@
 namespace Alchemy
 {
-    public static class Configuration
+    public class Configuration
     {
-        public readonly static int NumberOfFactories = 3;
+        public const int NumberOfFactories = 3;
+        public const int NumberOfAlchemists = 20;
 
-        public readonly static int WarlockMinSleepTimeMs = 4000;
-        public readonly static int WarlockMaxSleepTimeMs = 7001;
+        public const int WarlockMinSleepTimeMs = 4000;
+        public const int WarlockMaxSleepTimeMs = 7001;
 
-        public readonly static int SorcererMinSleepTimeMs = 3000;
-        public readonly static int SorcererMaxSleepTimeMs = 6001;
+        public const int SorcererMinSleepTimeMs = 3000;
+        public const int SorcererMaxSleepTimeMs = 6001;
 
-        public readonly static int FactoryMinSleepTimeMs = 3000;
-        public readonly static int FactoryMaxSleepTimeMs = 8001;
+        public const int FactoryMinSleepTimeMs = 1000;
+        public const int FactoryMaxSleepTimeMs = 3001;
+
+        public const int EntityNameLength = 13;
     }
 }

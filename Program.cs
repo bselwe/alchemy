@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using static Alchemy.Alchemist;
 
 namespace Alchemy
 {
@@ -12,10 +13,11 @@ namespace Alchemy
         {
             HandleArguments(args);
 
-            var store = InitializeDistribution();
+            var (store, queue) = InitializeDistribution();
             var factories = InitializeFactories(store);
             InitializeWarlocks(factories);
             InitializeSorcerers(factories);
+            InitializeAlchemists(queue);
         }
 
         private static void HandleArguments(string[] args)
@@ -31,7 +33,7 @@ namespace Alchemy
             }
         }
 
-        private static Store InitializeDistribution()
+        private static (Store, AlchemistsQueue) InitializeDistribution()
         {
             var dispatcher = new Dispatcher();
             var store = new Store(dispatcher);
@@ -42,7 +44,7 @@ namespace Alchemy
             new Thread(() => queue.Run()).Start();
             new Thread(() => distributor.Run()).Start();
 
-            return store;
+            return (store, queue);
         }
 
         private static Factory[] InitializeFactories(IStore store)
@@ -77,6 +79,19 @@ namespace Alchemy
             {
                 var sorcerer = new Sorcerer(factories);
                 new Thread(() => sorcerer.Run()).Start();
+            }
+        }
+
+        private static void InitializeAlchemists(IAlchemistsQueue queue)
+        {
+            var random = new Random();
+            var alchemistTypes = Enum.GetValues(typeof(AlchemistType));
+
+            for (int i = 0; i < Configuration.NumberOfAlchemists; i++)
+            {
+                var type = (AlchemistType) alchemistTypes.GetValue(random.Next(alchemistTypes.Length));
+                var alchemist = new Alchemist(type, queue);
+                new Thread(() => alchemist.Run()).Start();
             }
         }
     }

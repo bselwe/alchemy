@@ -8,6 +8,7 @@ namespace Alchemy
     public class AlchemistsQueue : IAlchemistsQueue
     {
         private readonly IDispatcher dispatcher;
+        
         private SemaphoreSlim semNewAlchemist; // Used to inform about a new alchemist
 
         public Dictionary<AlchemistType, SemaphoreSlim> SemAlchemistsQueue { get; private set; } // Used to block alchemists
@@ -26,9 +27,6 @@ namespace Alchemy
             while (true)
             {
                 semNewAlchemist.Wait();
-
-                Print("NEW ALCHEMIST!");
-
                 dispatcher.DispatchDistribution();
             }
         }
@@ -39,7 +37,7 @@ namespace Alchemy
             Alchemists[alchemist]++;
             if (Alchemists[alchemist]++ == 0)
                 semNewAlchemist.Release();
-            semNewAlchemist.Release();
+            SemAlchemists.Release();
         }
 
         public void WaitForResources(AlchemistType alchemist)
@@ -63,7 +61,7 @@ namespace Alchemy
 
         private void Print(string message)
         {
-            Console.WriteLine($"   [QUEUE] {message}");
+            Console.WriteLine($"{"[QUEUE]", Configuration.EntityNameLength} {message}");
         }
     }
 
